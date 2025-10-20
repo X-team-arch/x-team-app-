@@ -1,0 +1,1974 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-TEAM :: SYSTEM ACCESS GRANTED</title>
+    
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#dc2626">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="X-team">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+         
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            41% { opacity: 0.8; }
+            42% { opacity: 1; }
+            43% { opacity: 0.9; }
+            45% { opacity: 0.2; }
+            46% { opacity: 1; }
+        }
+         
+        @keyframes glitchText {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+         
+        @keyframes bloodDrip {
+            0% { top: -10px; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100vh; opacity: 0; }
+        }
+         
+        @keyframes scanline {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(100vh); }
+        }
+         
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.05); }
+        }
+         
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+         
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+         
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+         
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+         
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000000;
+            color: #ff0000;
+            overflow-x: hidden;
+            cursor: crosshair;
+            animation: flicker 0.15s infinite;
+            position: relative;
+        }
+         
+        .hacker-character {
+            position: fixed;
+            width: 200px;
+            height: 200px;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+         
+        .hacker-character.show {
+            opacity: 1;
+            animation: glitchCharacter 0.5s infinite;
+        }
+         
+        @keyframes glitchCharacter {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(-5px, 5px); }
+            50% { transform: translate(5px, -5px); }
+            75% { transform: translate(-5px, -5px); }
+        }
+         
+        .lego-hacker {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+         
+        .lego-head {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            background: #ffdd00;
+            border: 3px solid #000;
+            border-radius: 10px 10px 0 0;
+            top: 20px;
+            left: 70px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+         
+        .lego-eyes {
+            position: absolute;
+            top: 20px;
+            left: 10px;
+            display: flex;
+            gap: 20px;
+        }
+         
+        .eye {
+            width: 12px;
+            height: 12px;
+            background: #000;
+            border-radius: 50%;
+            animation: blink 3s infinite;
+        }
+         
+        .lego-mouth {
+            position: absolute;
+            bottom: 10px;
+            left: 15px;
+            width: 30px;
+            height: 3px;
+            background: #000;
+            border-radius: 0 0 15px 15px;
+        }
+         
+        .lego-body {
+            position: absolute;
+            width: 70px;
+            height: 60px;
+            background: #000;
+            border: 3px solid #333;
+            top: 80px;
+            left: 65px;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+        }
+         
+        .lego-arms {
+            position: absolute;
+            top: 90px;
+        }
+         
+        .lego-arm {
+            position: absolute;
+            width: 40px;
+            height: 15px;
+            background: #ffdd00;
+            border: 2px solid #000;
+        }
+         
+        .lego-arm.left {
+            left: 20px;
+            transform: rotate(-30deg);
+        }
+         
+        .lego-arm.right {
+            right: 20px;
+            transform: rotate(30deg);
+        }
+         
+        .lego-legs {
+            position: absolute;
+            top: 140px;
+            left: 70px;
+            display: flex;
+            gap: 10px;
+        }
+         
+        .lego-leg {
+            width: 25px;
+            height: 40px;
+            background: #0066cc;
+            border: 2px solid #000;
+        }
+         
+        .hoodie {
+            position: absolute;
+            width: 80px;
+            height: 40px;
+            background: #1a1a1a;
+            border: 3px solid #000;
+            top: 75px;
+            left: 60px;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+        }
+         
+        .monitor {
+            position: absolute;
+            width: 50px;
+            height: 40px;
+            background: #000;
+            border: 3px solid #ff0000;
+            top: 100px;
+            left: 10px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.8);
+        }
+         
+        .monitor-screen {
+            width: 44px;
+            height: 30px;
+            background: #001100;
+            margin: 3px;
+            position: relative;
+            overflow: hidden;
+        }
+         
+        .monitor-text {
+            color: #00ff00;
+            font-size: 4px;
+            font-family: 'Courier New', monospace;
+            animation: scrollText 2s linear infinite;
+        }
+         
+        @keyframes scrollText {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-100%); }
+        }
+         
+        .audio-controls {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+         
+        .audio-btn {
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            padding: 10px 15px;
+            cursor: crosshair;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 0 5px #ff0000;
+        }
+         
+        .audio-btn:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 25px #ff0000;
+            transform: scale(1.05);
+        }
+         
+        .audio-btn.playing {
+            animation: pulse 1s infinite;
+        }
+         
+        .ghost-text {
+            position: fixed;
+            color: #ff0000;
+            font-size: 2em;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+            text-shadow: 0 0 20px #ff0000;
+            font-weight: bold;
+            animation: ghostAppear 3s ease-out forwards;
+        }
+         
+        @keyframes ghostAppear {
+            0% { opacity: 0; transform: translateY(0) scale(0.5); }
+            50% { opacity: 1; transform: translateY(-50px) scale(1.2); }
+            100% { opacity: 0; transform: translateY(-100px) scale(0.8); }
+        }
+         
+        .ai-assistant {
+            position: fixed;
+            bottom: 140px;
+            right: 20px;
+            width: 400px;
+            max-height: 500px;
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ff0000;
+            z-index: 1001;
+            display: none;
+            flex-direction: column;
+            box-shadow: 0 0 40px rgba(255, 0, 0, 0.8);
+            animation: slideIn 0.5s;
+        }
+         
+        .ai-assistant.open {
+            display: flex;
+        }
+         
+        .ai-header {
+            background: rgba(139, 0, 0, 0.5);
+            padding: 15px;
+            border-bottom: 2px solid #ff0000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+         
+        .ai-header h3 {
+            color: #ff0000;
+            margin: 0;
+            font-size: 1.2em;
+            text-shadow: 0 0 10px #ff0000;
+            animation: glitchText 2s infinite;
+        }
+         
+        .ai-close {
+            color: #ff0000;
+            cursor: crosshair;
+            font-size: 1.5em;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+         
+        .ai-close:hover {
+            color: #fff;
+            text-shadow: 0 0 15px #ff0000;
+            transform: rotate(90deg);
+        }
+         
+        .ai-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            max-height: 300px;
+            background: rgba(0, 0, 0, 0.9);
+        }
+         
+        .ai-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+         
+        .ai-messages::-webkit-scrollbar-track {
+            background: #000;
+        }
+         
+        .ai-messages::-webkit-scrollbar-thumb {
+            background: #ff0000;
+        }
+         
+        .ai-message {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-left: 3px solid #ff0000;
+            animation: slideIn 0.3s;
+        }
+         
+        .ai-message.user {
+            background: rgba(139, 0, 0, 0.2);
+            border-left-color: #00ff00;
+            text-align: right;
+        }
+         
+        .ai-message.bot {
+            background: rgba(0, 0, 0, 0.5);
+            border-left-color: #ff0000;
+        }
+         
+        .ai-message .sender {
+            color: #ff0000;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            text-shadow: 0 0 5px #ff0000;
+        }
+         
+        .ai-message.user .sender {
+            color: #00ff00;
+            text-shadow: 0 0 5px #00ff00;
+        }
+         
+        .ai-message .text {
+            color: #999;
+            line-height: 1.4;
+            font-size: 0.9em;
+        }
+         
+        .ai-input-container {
+            padding: 15px;
+            border-top: 2px solid #ff0000;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            gap: 10px;
+        }
+         
+        .ai-input {
+            flex: 1;
+            background: #000;
+            border: 2px solid #ff0000;
+            color: #00ff00;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+         
+        .ai-input:focus {
+            outline: none;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.5);
+        }
+         
+        .ai-send {
+            background: #000;
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            padding: 10px 20px;
+            cursor: crosshair;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+        }
+         
+        .ai-send:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 20px #ff0000;
+        }
+         
+        .ai-toggle {
+            position: fixed;
+            bottom: 80px;
+            right: 110px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ff0000;
+            padding: 10px 20px;
+            color: #ff0000;
+            text-decoration: none;
+            font-size: 0.9em;
+            cursor: crosshair;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 0 10px #ff0000;
+            animation: pulse 2s infinite;
+        }
+         
+        .ai-toggle:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 40px #ff0000;
+            transform: scale(1.1);
+        }
+         
+        .skull-float {
+            position: fixed;
+            font-size: 3em;
+            pointer-events: none;
+            z-index: 9998;
+            opacity: 0;
+            animation: floatSkull 5s ease-out forwards;
+        }
+         
+        @keyframes floatSkull {
+            0% { opacity: 0; transform: translateY(100vh) rotate(0deg); }
+            50% { opacity: 0.8; transform: translateY(50vh) rotate(180deg); }
+            100% { opacity: 0; transform: translateY(-10vh) rotate(360deg); }
+        }
+         
+        .screen-crack {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9997;
+            background: 
+                linear-gradient(45deg, transparent 48%, rgba(255, 0, 0, 0.3) 49%, rgba(255, 0, 0, 0.3) 51%, transparent 52%),
+                linear-gradient(-45deg, transparent 48%, rgba(255, 0, 0, 0.3) 49%, rgba(255, 0, 0, 0.3) 51%, transparent 52%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+         
+        .screen-crack.active {
+            opacity: 1;
+        }
+         
+        @media (max-width: 768px) {
+            .ai-assistant {
+                width: 90%;
+                right: 5%;
+            }
+        }
+         
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(255, 0, 0, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(255, 0, 0, 0.03) 3px
+            );
+            pointer-events: none;
+            z-index: 9999;
+            animation: scanline 8s linear infinite;
+        }
+         
+        .blood-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+            overflow: hidden;
+        }
+         
+        .blood-drop {
+            position: absolute;
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(180deg, rgba(139, 0, 0, 0) 0%, rgba(139, 0, 0, 1) 100%);
+            animation: bloodDrip 3s linear infinite;
+        }
+         
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            opacity: 0.15;
+            filter: hue-rotate(180deg) brightness(0.5);
+        }
+         
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.9);
+            pointer-events: none;
+            z-index: 2;
+        }
+         
+        header {
+            position: relative;
+            z-index: 10;
+            padding: 20px 50px;
+            background: rgba(0, 0, 0, 0.95);
+            border-bottom: 3px solid #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+         
+        .logo {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #ff0000;
+            text-shadow: 
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 30px #ff0000,
+                0 0 40px #8b0000,
+                0 0 70px #8b0000,
+                0 0 80px #8b0000,
+                0 0 100px #8b0000;
+            animation: glitchText 0.3s infinite;
+            filter: blur(0.5px);
+        }
+         
+        .logo::before {
+            content: 'X-TEAM';
+            position: absolute;
+            left: 0;
+            text-shadow: -2px 0 #00ff00;
+            animation: glitchText 0.2s infinite reverse;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+         
+        .logo::after {
+            content: 'X-TEAM';
+            position: absolute;
+            left: 0;
+            text-shadow: 2px 0 #0000ff;
+            animation: glitchText 0.15s infinite;
+            clip-path: polygon(0 60%, 100% 60%, 100% 100%, 0 100%);
+        }
+         
+        nav a {
+            color: #ff0000;
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            text-shadow: 0 0 5px #ff0000;
+            position: relative;
+        }
+         
+        nav a:hover {
+            text-shadow: 0 0 20px #ff0000, 0 0 30px #ff0000;
+            color: #fff;
+            letter-spacing: 2px;
+        }
+         
+        nav a::before {
+            content: '[';
+            margin-right: 5px;
+        }
+         
+        nav a::after {
+            content: ']';
+            margin-left: 5px;
+        }
+         
+        .hero {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 120px 20px;
+            background: 
+                radial-gradient(ellipse at center, rgba(139, 0, 0, 0.3) 0%, transparent 70%),
+                linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.8) 100%);
+        }
+         
+        .skull {
+            font-size: 6em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+            filter: drop-shadow(0 0 20px #ff0000);
+        }
+         
+        .hero h1 {
+            font-size: 4em;
+            margin-bottom: 20px;
+            color: #ff0000;
+            text-shadow: 
+                0 0 10px #ff0000,
+                0 0 20px #ff0000,
+                0 0 30px #8b0000;
+            animation: glitchText 0.5s infinite;
+            filter: blur(0.3px);
+        }
+         
+        .hero p {
+            font-size: 1.5em;
+            color: #8b0000;
+            margin-bottom: 30px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .warning {
+            display: inline-block;
+            padding: 10px 30px;
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            font-size: 1em;
+            margin-top: 20px;
+            animation: flicker 0.5s infinite;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: #000;
+            border: 3px solid #ff0000;
+            color: #ff0000;
+            font-size: 1.2em;
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: crosshair;
+            position: relative;
+            overflow: hidden;
+            text-shadow: 0 0 5px #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+         
+        .cta-button:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 40px #ff0000, inset 0 0 20px rgba(0, 0, 0, 0.5);
+            transform: scale(1.05);
+        }
+         
+        .about-section {
+            position: relative;
+            z-index: 10;
+            max-width: 1000px;
+            margin: 80px auto;
+            padding: 50px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #ff0000;
+            box-shadow: 
+                0 0 30px rgba(255, 0, 0, 0.6),
+                inset 0 0 50px rgba(139, 0, 0, 0.2);
+        }
+         
+        .terminal-header {
+            color: #ff0000;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .terminal-line {
+            color: #ff0000;
+            margin: 5px 0;
+            opacity: 0;
+            animation: fadeIn 0.5s forwards;
+            text-shadow: 0 0 5px #ff0000;
+        }
+         
+        .terminal-line:nth-child(2) { animation-delay: 0.5s; }
+        .terminal-line:nth-child(3) { animation-delay: 1s; }
+        .terminal-line:nth-child(4) { animation-delay: 1.5s; }
+        .terminal-line:nth-child(5) { animation-delay: 2s; }
+        .terminal-line:nth-child(6) { animation-delay: 2.5s; }
+         
+        .admin-link {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: rgba(0, 0, 0, 0.95);
+            border: 3px solid #ff0000;
+            padding: 10px 20px;
+            color: #ff0000;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            text-shadow: 0 0 10px #ff0000;
+            animation: pulse 2s infinite;
+        }
+         
+        .admin-link:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 40px #ff0000;
+            transform: scale(1.1);
+        }
+         
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.98);
+            overflow: auto;
+        }
+         
+        .modal-content {
+            position: relative;
+            background-color: #000;
+            margin: 2% auto;
+            padding: 40px;
+            border: 3px solid #ff0000;
+            width: 95%;
+            max-width: 1200px;
+            box-shadow: 
+                0 0 50px rgba(255, 0, 0, 0.8),
+                inset 0 0 50px rgba(139, 0, 0, 0.3);
+            animation: slideIn 0.5s;
+        }
+         
+        .close {
+            color: #ff0000;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: crosshair;
+            line-height: 20px;
+            text-shadow: 0 0 10px #ff0000;
+            transition: all 0.3s;
+        }
+         
+        .close:hover {
+            color: #fff;
+            text-shadow: 0 0 20px #ff0000;
+            transform: rotate(180deg);
+        }
+         
+        .login-form {
+            margin-top: 30px;
+        }
+         
+        .login-form h2 {
+            color: #ff0000;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 2em;
+            text-shadow: 0 0 20px #ff0000;
+            animation: glitchText 1s infinite;
+        }
+         
+        .form-group {
+            margin-bottom: 20px;
+        }
+         
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #ff0000;
+            text-shadow: 0 0 5px #ff0000;
+        }
+         
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            background: #000;
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            box-shadow: inset 0 0 20px rgba(139, 0, 0, 0.3);
+        }
+         
+        .form-group input:focus {
+            outline: none;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+            border-color: #fff;
+        }
+         
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background: #000;
+            border: 3px solid #ff0000;
+            color: #ff0000;
+            font-size: 1.1em;
+            cursor: crosshair;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 5px #ff0000;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+        }
+         
+        .login-btn:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 40px #ff0000;
+            transform: scale(1.02);
+        }
+         
+        .error-message {
+            color: #fff;
+            text-align: center;
+            margin-top: 15px;
+            display: none;
+            padding: 10px;
+            border: 2px solid #ff0000;
+            background: rgba(139, 0, 0, 0.3);
+            text-shadow: 0 0 10px #ff0000;
+            animation: shake 0.5s infinite;
+        }
+         
+        .admin-dashboard {
+            display: none;
+        }
+         
+        .dashboard-header {
+            color: #ff0000;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 20px #ff0000;
+            animation: glitchText 2s infinite;
+        }
+         
+        .system-info {
+            background: rgba(139, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+         
+        .system-info p {
+            color: #ff0000;
+            margin: 5px 0;
+            text-shadow: 0 0 5px #ff0000;
+        }
+         
+        .system-info span {
+            color: #999;
+        }
+         
+        .threat-level {
+            display: inline-block;
+            padding: 5px 15px;
+            background: rgba(255, 0, 0, 0.3);
+            border: 1px solid #ff0000;
+            color: #ff0000;
+            font-weight: bold;
+            animation: pulse 1s infinite;
+        }
+         
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+         
+        .stat-card {
+            background: rgba(139, 0, 0, 0.2);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+         
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 0, 0.3), transparent);
+            transition: left 0.5s;
+        }
+         
+        .stat-card:hover::before {
+            left: 100%;
+        }
+         
+        .stat-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+        }
+         
+        .stat-card h3 {
+            color: #ff0000;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px #ff0000;
+        }
+         
+        .stat-card p {
+            color: #999;
+            font-size: 0.9em;
+        }
+         
+        .activity-log {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            margin-bottom: 30px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.9em;
+        }
+         
+        .activity-log::-webkit-scrollbar {
+            width: 10px;
+        }
+         
+        .activity-log::-webkit-scrollbar-track {
+            background: #000;
+        }
+         
+        .activity-log::-webkit-scrollbar-thumb {
+            background: #ff0000;
+        }
+         
+        .log-entry {
+            color: #ff0000;
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #ff0000;
+            padding-left: 10px;
+            animation: slideIn 0.5s;
+        }
+         
+        .log-entry.warning {
+            border-left-color: #ff6600;
+            color: #ff6600;
+        }
+         
+        .log-entry.critical {
+            border-left-color: #ff0000;
+            color: #ff0000;
+            animation: pulse 2s infinite;
+        }
+         
+        .visitors-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.3);
+        }
+         
+        .visitors-table th,
+        .visitors-table td {
+            border: 1px solid #ff0000;
+            padding: 12px;
+            text-align: left;
+            font-size: 0.9em;
+        }
+         
+        .visitors-table th {
+            background: rgba(139, 0, 0, 0.5);
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .visitors-table td {
+            color: #999;
+            background: rgba(0, 0, 0, 0.8);
+        }
+         
+        .visitors-table tr:hover td {
+            background: rgba(139, 0, 0, 0.3);
+            color: #ff0000;
+        }
+         
+        .control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+         
+        .control-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            transition: all 0.3s;
+        }
+         
+        .control-card h4 {
+            color: #ff0000;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .control-btn {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            background: #000;
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            cursor: crosshair;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+        }
+         
+        .control-btn:hover {
+            background: #ff0000;
+            color: #000;
+            box-shadow: 0 0 20px #ff0000;
+        }
+         
+        footer {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            padding: 30px;
+            background: rgba(0, 0, 0, 0.95);
+            border-top: 3px solid #ff0000;
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+            box-shadow: 0 -10px 30px rgba(255, 0, 0, 0.3);
+        }
+         
+        @media (max-width: 768px) {
+            .about-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+             
+            .about-image {
+                margin: 0 auto;
+            }
+             
+            header {
+                padding: 20px;
+            }
+             
+            .hero h1 {
+                font-size: 2em;
+            }
+             
+            .languages-grid {
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Audio de terror -->
+    <audio id="horrorAudio" loop>
+        <source src="https://cdn.pixabay.com/download/audio/2022/03/10/audio_4a26f6ae51.mp3" type="audio/mpeg">
+    </audio>
+    
+    <!-- Personaje Hacker LEGO -->
+    <div class="hacker-character" id="hackerChar">
+        <div class="lego-hacker">
+            <div class="monitor">
+                <div class="monitor-screen">
+                    <div class="monitor-text">
+                        HACKING...<br>
+                        ACCESS<br>
+                        GRANTED<br>
+                        >>_
+                    </div>
+                </div>
+            </div>
+            <div class="hoodie"></div>
+            <div class="lego-head">
+                <div class="lego-eyes">
+                    <div class="eye"></div>
+                    <div class="eye"></div>
+                </div>
+                <div class="lego-mouth"></div>
+            </div>
+            <div class="lego-body"></div>
+            <div class="lego-arms">
+                <div class="lego-arm left"></div>
+                <div class="lego-arm right"></div>
+            </div>
+            <div class="lego-legs">
+                <div class="lego-leg"></div>
+                <div class="lego-leg"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Controles de audio -->
+    <div class="audio-controls">
+        <button class="audio-btn" id="audioToggle" onclick="toggleAudio()">🔊 AUDIO</button>
+    </div>
+    
+    <div class="blood-overlay" id="bloodOverlay"></div>
+    <canvas class="matrix-bg" id="matrix"></canvas>
+    <div class="vignette"></div>
+    
+    <header>
+        <div class="logo">X-TEAM</div>
+        <nav>
+            <a href="#home">INICIO</a>
+            <a href="#about">PERFIL</a>
+            <a href="#languages">LENGUAJES</a>
+            <a href="#skills">HABILIDADES</a>
+            <a href="#terminal">TERMINAL</a>
+            <a href="#contact">CONTACTO</a>
+        </nav>
+    </header>
+    
+    <section class="hero" id="home">
+        <div class="skull">💀</div>
+        <h1>&gt;&gt; ACCESO CONCEDIDO_</h1>
+        <p>Programación & Aprendizaje en Ciberseguridad</p>
+        <div class="warning">⚠️ ADVERTENCIA: ZONA RESTRINGIDA ⚠️</div>
+        <br><br>
+        <a href="#about" class="cta-button">[INICIAR SESIÓN]</a>
+    </section>
+    
+    <section class="about-section" id="about">
+        <h2>// ARCHIVO_PERSONAL.exe</h2>
+        <div class="about-content">
+            <div class="about-image">
+                👨‍💻
+            </div>
+            <div class="about-text">
+                <p>Soy un <span class="highlight">programador apasionado</span> por la tecnología y la ciberseguridad. Me encanta crear código y explorar cómo funcionan los sistemas digitales en las sombras.</p>
+                
+                <p>Actualmente estoy <span class="highlight">aprendiendo hacking ético</span> y técnicas de seguridad informática. Cada día es una oportunidad para adquirir nuevos conocimientos sobre programación, redes y protección de sistemas.</p>
+                
+                <p>Mi filosofía es simple: <span class="highlight">"Nunca dejar de aprender"</span>. Por eso dedico mi tiempo a estudiar lenguajes de programación, practicar en plataformas de CTF y entender cómo funciona la seguridad digital.</p>
+                
+                <p>Aprendiendo sobre:</p>
+                <p style="color: #ff0000;">• Programación en Python, JavaScript y más<br>
+                • Fundamentos de ciberseguridad<br>
+                • Redes y protocolos de internet<br>
+                • Linux y herramientas de seguridad</p>
+            </div>
+        </div>
+    </section>
+    
+    <section class="languages-section" id="languages">
+        <h2>⚡ ARSENAL DE LENGUAJES ⚡</h2>
+        <div class="languages-grid">
+            <div class="lang-card">
+                <div class="icon">🐍</div>
+                <h3>Python</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🟨</div>
+                <h3>JavaScript</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🌐</div>
+                <h3>HTML5</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🎨</div>
+                <h3>CSS3</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">⚙️</div>
+                <h3>C/C++</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">☕</div>
+                <h3>Java</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">💎</div>
+                <h3>Ruby</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🔷</div>
+                <h3>Go</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🦀</div>
+                <h3>Rust</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🐘</div>
+                <h3>PHP</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🗄️</div>
+                <h3>SQL</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">💻</div>
+                <h3>Bash</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">📜</div>
+                <h3>PowerShell</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🔧</div>
+                <h3>Assembly</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">⚡</div>
+                <h3>Perl</h3>
+            </div>
+            <div class="lang-card">
+                <div class="icon">🔺</div>
+                <h3>Kotlin</h3>
+            </div>
+        </div>
+    </section>
+    
+    <section class="features" id="skills">
+        <div class="feature-card">
+            <div class="icon">🛡️</div>
+            <h3>Penetration Testing</h3>
+            <p>Pruebas de penetración avanzadas para identificar vulnerabilidades en sistemas y redes antes que los atacantes accedan.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">💻</div>
+            <h3>Exploits & Payloads</h3>
+            <p>Desarrollo y análisis de exploits personalizados para investigación de seguridad y auditorías éticas de sistemas comprometidos.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🔐</div>
+            <h3>Cryptography</h3>
+            <p>Implementación de sistemas criptográficos robustos y análisis de algoritmos de cifrado modernos para protección de datos.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🌐</div>
+            <h3>Network Security</h3>
+            <p>Monitoreo y protección de infraestructuras de red contra amenazas internas y externas que acechan en la oscuridad.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">🔍</div>
+            <h3>Forensics</h3>
+            <p>Análisis forense digital para investigación de incidentes de seguridad y recuperación de evidencias ocultas.</p>
+        </div>
+        <div class="feature-card">
+            <div class="icon">⚡</div>
+            <h3>Social Engineering</h3>
+            <p>Evaluación de la seguridad humana mediante técnicas de ingeniería social controladas y manipulación psicológica.</p>
+        </div>
+    </section>
+    
+    <section class="terminal" id="terminal">
+        <div class="terminal-header">[root@x-team-SYSTEM ~]# ACCESS_GRANTED</div>
+        <div class="terminal-line">&gt;&gt; sudo ./scan_network.sh --deep</div>
+        <div class="terminal-line">[+] Escaneando infraestructura...</div>
+        <div class="terminal-line">[!] 47 dispositivos encontrados | 12 vulnerables</div>
+        <div class="terminal-line">[+] Explotando backdoors...</div>
+        <div class="terminal-line">[!] ACCESO ROOT OBTENIDO</div>
+        <div class="terminal-line">[✓] Sistema comprometido. Eliminando rastros...</div>
+    </section>
+    
+    <footer id="contact">
+        <p>⚠️ © 2025 X-TEAM | Programación & Aprendizaje en Ciberseguridad ⚠️</p>
+        <p style="margin-top: 10px; color: #ff0000;">root@x-team.darkweb | PGP: 0x4F7A9B2E | TOR ONLY</p>
+        <p style="margin-top: 10px; font-size: 0.8em; color: #8b0000;">⚠️ TODAS LAS ACTIVIDADES SON MONITOREADAS ⚠️</p>
+    </footer>
+    
+    <a href="#" class="admin-link" id="adminBtn">🔒 [ADMIN_ACCESS]</a>
+    
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            
+            <div class="login-form" id="loginForm">
+                <h2>⚠️ AUTENTICACIÓN REQUERIDA ⚠️</h2>
+                <div class="form-group">
+                    <label for="username">&gt;&gt; USUARIO_ID:</label>
+                    <input type="text" id="username" placeholder="Ingresa credencial de acceso">
+                </div>
+                <div class="form-group">
+                    <label for="password">&gt;&gt; PASS_KEY:</label>
+                    <input type="password" id="password" placeholder="Ingresa código de seguridad">
+                </div>
+                <button class="login-btn" onclick="login()">[INICIAR_ACCESO]</button>
+                <p class="error-message" id="errorMsg">⚠️ ACCESO DENEGADO - INTENTO REGISTRADO ⚠️</p>
+            </div>
+            
+            <div class="admin-dashboard" id="dashboard">
+                <h2 class="dashboard-header">☠️ CENTRO DE COMANDO - NIVEL MÁXIMO ☠️</h2>
+                
+                <div class="system-info">
+                    <p>⚡ SISTEMA: <span id="systemStatus">OPERATIVO</span></p>
+                    <p>⚡ NIVEL DE AMENAZA: <span class="threat-level">CRÍTICO</span></p>
+                    <p>⚡ ÚLTIMA INTRUSIÓN: <span id="lastIntrusion">DESCONOCIDA</span></p>
+                    <p>⚡ FIREWALL: <span style="color: #00ff00;">ACTIVO</span></p>
+                    <p>⚡ MODO: <span style="color: #ff0000;">GHOST_PROTOCOL</span></p>
+                </div>
+                
+                <div class="activity-log">
+                    <h3 style="color: #ff0000; margin-bottom: 10px; text-shadow: 0 0 10px #ff0000;">⚠️ REGISTRO DE ACTIVIDAD EN TIEMPO REAL</h3>
+                    <div id="liveLog">
+                        <div class="log-entry critical">[CRÍTICO] Intento de acceso no autorizado detectado</div>
+                        <div class="log-entry warning">[ALERTA] Escaneo de puertos en progreso - IP: 192.168.1.xxx</div>
+                        <div class="log-entry">[INFO] Sistema de defensa activado automáticamente</div>
+                        <div class="log-entry critical">[CRÍTICO] Backdoor detectado en /root/system32</div>
+                        <div class="log-entry warning">[ALERTA] Tráfico sospechoso desde TOR network</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3 id="totalVisits">0</h3>
+                        <p>CONEXIONES TOTALES</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="uniqueVisitors">0</h3>
+                        <p>HOSTS ÚNICOS</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="todayVisits">0</h3>
+                        <p>INTRUSIONES HOY</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="blockedAttacks">127</h3>
+                        <p>ATAQUES BLOQUEADOS</p>
+                    </div>
+                </div>
+                
+                <div class="control-panel">
+                    <div class="control-card">
+                        <h4>🔥 HERRAMIENTAS DE ATAQUE</h4>
+                        <button class="control-btn" onclick="simulateAction('Port Scanner')">[PORT_SCANNER]</button>
+                        <button class="control-btn" onclick="simulateAction('SQL Injection')">[SQL_INJECTION]</button>
+                        <button class="control-btn" onclick="simulateAction('DDoS')">[DDOS_ATTACK]</button>
+                    </div>
+                    <div class="control-card">
+                        <h4>🛡️ SISTEMAS DE DEFENSA</h4>
+                        <button class="control-btn" onclick="simulateAction('Firewall')">[FIREWALL_TOGGLE]</button>
+                        <button class="control-btn" onclick="simulateAction('IDS')">[IDS_ACTIVATE]</button>
+                        <button class="control-btn" onclick="simulateAction('Honeypot')">[HONEYPOT_DEPLOY]</button>
+                    </div>
+                    <div class="control-card">
+                        <h4>💀 EXPLOITS AVANZADOS</h4>
+                        <button class="control-btn" onclick="simulateAction('Zero Day')">[0DAY_EXPLOIT]</button>
+                        <button class="control-btn" onclick="simulateAction('Backdoor')">[BACKDOOR_INJECT]</button>
+                        <button class="control-btn" onclick="simulateAction('RAT')">[RAT_DEPLOY]</button>
+                    </div>
+                    <div class="control-card">
+                        <h4>🔐 CIFRADO & ANONIMATO</h4>
+                        <button class="control-btn" onclick="simulateAction('VPN')">[VPN_CONNECT]</button>
+                        <button class="control-btn" onclick="simulateAction('TOR')">[TOR_ROUTING]</button>
+                        <button class="control-btn" onclick="simulateAction('Encrypt')">[ENCRYPT_DATA]</button>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="https://href.li/?https://immortal.rs" target="_blank" class="cta-button" style="display: inline-block; text-decoration: none;">
+                        🔗 [DASHBOARD_EXTERNO]
+                    </a>
+                </div>
+                
+                <h3 style="color: #ff0000; margin-top: 30px; margin-bottom: 15px; text-shadow: 0 0 10px #ff0000;">⚠️ REGISTRO DE INTRUSIONES DETECTADAS</h3>
+                <table class="visitors-table">
+                    <thead>
+                        <tr>
+                            <th>TIMESTAMP</th>
+                            <th>IP_ADDRESS</th>
+                            <th>BROWSER</th>
+                            <th>OS_SYSTEM</th>
+                            <th>LOCATION</th>
+                            <th>AMENAZA</th>
+                        </tr>
+                    </thead>
+                    <tbody id="visitorsTable">
+                    </tbody>
+                </table>
+                
+                <button class="login-btn" style="margin-top: 30px;" onclick="logout()">[CERRAR_SESIÓN]</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/X-team/service-worker.js')
+                .then(reg => console.log('Service Worker registrado', reg))
+                .catch(err => console.log('Error al registrar SW', err));
+        }
+    </script>
+    
+    <script>
+        const ADMIN_CREDENTIALS = {
+            username: 'admin',
+            password: 'xteam2025'
+        };
+        
+        let visitors = [];
+        let logCounter = 0;
+        let audioPlaying = false;
+        
+        // Control de audio
+        function toggleAudio() {
+            const audio = document.getElementById('horrorAudio');
+            const btn = document.getElementById('audioToggle');
+            
+            if (audioPlaying) {
+                audio.pause();
+                btn.classList.remove('playing');
+                btn.textContent = '🔊 AUDIO';
+                audioPlaying = false;
+            } else {
+                audio.play();
+                btn.classList.add('playing');
+                btn.textContent = '🔇 SILENCIO';
+                audioPlaying = true;
+            }
+        }
+        
+        // Función para mostrar/ocultar el personaje hacker
+        function toggleHackerCharacter() {
+            const character = document.getElementById('hackerChar');
+            const isVisible = character.classList.contains('show');
+            
+            if (!isVisible) {
+                // Posición aleatoria en la pantalla
+                const maxX = window.innerWidth - 200;
+                const maxY = window.innerHeight - 200;
+                const randomX = Math.random() * maxX;
+                const randomY = Math.random() * maxY;
+                
+                character.style.left = randomX + 'px';
+                character.style.top = randomY + 'px';
+                character.classList.add('show');
+                
+                // Ocultar después de 3-5 segundos
+                const hideTime = Math.random() * 2000 + 3000;
+                setTimeout(() => {
+                    character.classList.remove('show');
+                }, hideTime);
+            }
+        }
+        
+        // Aparecer el personaje aleatoriamente cada 10-20 segundos
+        function startHackerAppearances() {
+            setInterval(() => {
+                if (Math.random() > 0.3) { // 70% de probabilidad
+                    toggleHackerCharacter();
+                }
+            }, Math.random() * 10000 + 10000);
+        }
+        
+        function createBloodDrops() {
+            const bloodOverlay = document.getElementById('bloodOverlay');
+            for (let i = 0; i < 20; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'blood-drop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.animationDelay = Math.random() * 3 + 's';
+                drop.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                bloodOverlay.appendChild(drop);
+            }
+        }
+        
+        function detectVisitorInfo() {
+            const now = new Date();
+            const userAgent = navigator.userAgent;
+            
+            let browser = 'UNKNOWN';
+            if (userAgent.indexOf('Firefox') > -1) browser = 'Firefox';
+            else if (userAgent.indexOf('Chrome') > -1) browser = 'Chrome';
+            else if (userAgent.indexOf('Safari') > -1) browser = 'Safari';
+            else if (userAgent.indexOf('Edge') > -1) browser = 'Edge';
+            else if (userAgent.indexOf('Opera') > -1) browser = 'Opera';
+            
+            let os = 'UNKNOWN';
+            if (userAgent.indexOf('Win') > -1) os = 'Windows';
+            else if (userAgent.indexOf('Mac') > -1) os = 'MacOS';
+            else if (userAgent.indexOf('Linux') > -1) os = 'Linux';
+            else if (userAgent.indexOf('Android') > -1) os = 'Android';
+            else if (userAgent.indexOf('iOS') > -1) os = 'iOS';
+            
+            return {
+                timestamp: now.toLocaleString('es-MX'),
+                browser: browser,
+                os: os,
+                screenResolution: `${screen.width}x${screen.height}`,
+                language: navigator.language
+            };
+        }
+        
+        function generateFakeIP() {
+            return `${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}.${Math.floor(Math.random() * 255)}`;
+        }
+        
+        function registerVisit() {
+            const visitorInfo = detectVisitorInfo();
+            const threats = ['BAJO', 'MEDIO', 'ALTO', 'CRÍTICO'];
+            const visit = {
+                ...visitorInfo,
+                ip: generateFakeIP(),
+                location: 'UNKNOWN',
+                threat: threats[Math.floor(Math.random() * threats.length)]
+            };
+            
+            visitors.push(visit);
+            updateStats();
+        }
+        
+        function updateStats() {
+            document.getElementById('totalVisits').textContent = visitors.length;
+            document.getElementById('uniqueVisitors').textContent = new Set(visitors.map(v => v.ip)).size;
+            
+            const today = new Date().toLocaleDateString('es-MX');
+            const todayVisits = visitors.filter(v => v.timestamp.includes(today)).length;
+            document.getElementById('todayVisits').textContent = todayVisits;
+            
+            if (visitors.length > 0) {
+                document.getElementById('lastIntrusion').textContent = visitors[visitors.length - 1].timestamp;
+            }
+            
+            const attackCount = Math.floor(Math.random() * 50) + 100;
+            document.getElementById('blockedAttacks').textContent = attackCount;
+        }
+        
+        function displayVisitors() {
+            const tbody = document.getElementById('visitorsTable');
+            tbody.innerHTML = '';
+            
+            visitors.slice().reverse().forEach(visitor => {
+                const row = tbody.insertRow();
+                const threatColor = visitor.threat === 'CRÍTICO' ? '#ff0000' :
+                                    visitor.threat === 'ALTO' ? '#ff6600' :
+                                    visitor.threat === 'MEDIO' ? '#ffaa00' : '#00ff00';
+                row.innerHTML = `
+                    <td>${visitor.timestamp}</td>
+                    <td>${visitor.ip}</td>
+                    <td>${visitor.browser}</td>
+                    <td>${visitor.os}</td>
+                    <td>${visitor.location}</td>
+                    <td style="color: ${threatColor}; font-weight: bold;">${visitor.threat}</td>
+                `;
+            });
+        }
+        
+        function addLogEntry(message, type = '') {
+            const logDiv = document.getElementById('liveLog');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry ' + type;
+            entry.textContent = message;
+            logDiv.insertBefore(entry, logDiv.firstChild);
+            
+            if (logDiv.children.length > 10) {
+                logDiv.removeChild(logDiv.lastChild);
+            }
+        }
+        
+        function simulateAction(action) {
+            const messages = {
+                'Port Scanner': '[INFO] Escaneando puertos 1-65535... 23 puertos abiertos detectados',
+                'SQL Injection': '[ALERTA] Inyección SQL ejecutada en target database',
+                'DDoS': '[CRÍTICO] Ataque DDoS iniciado - 10000 bots activos',
+                'Firewall': '[INFO] Estado del Firewall cambiado',
+                'IDS': '[INFO] Sistema de Detección de Intrusos activado',
+                'Honeypot': '[INFO] Honeypot desplegado en puerto 8080',
+                'Zero Day': '[CRÍTICO] Explotando vulnerabilidad 0-day CVE-2025-XXXX',
+                'Backdoor': '[ALERTA] Backdoor inyectado exitosamente en /usr/bin',
+                'RAT': '[CRÍTICO] Remote Access Trojan desplegado',
+                'VPN': '[INFO] Conexión VPN establecida - IP cambiada',
+                'TOR': '[INFO] Enrutamiento TOR activado - Anonimato garantizado',
+                'Encrypt': '[INFO] Datos cifrados con AES-256'
+            };
+            
+            const type = action.includes('CRÍTICO') || ['DDoS', 'Zero Day', 'RAT'].includes(action) ? 'critical' :
+                         ['SQL Injection', 'Backdoor'].includes(action) ? 'warning' : '';
+            
+            addLogEntry(messages[action] || `[INFO] ${action} ejecutado`, type);
+        }
+        
+        function startLiveLog() {
+            setInterval(() => {
+                const logs = [
+                    { msg: '[INFO] Paquete TCP recibido desde 192.168.x.xxx', type: '' },
+                    { msg: '[ALERTA] Intento de fuerza bruta detectado', type: 'warning' },
+                    { msg: '[CRÍTICO] Vulnerabilidad crítica encontrada', type: 'critical' },
+                    { msg: '[INFO] Actualizando base de datos de amenazas', type: '' },
+                    { msg: '[ALERTA] Tráfico anómalo en puerto 443', type: 'warning' }
+                ];
+                const log = logs[Math.floor(Math.random() * logs.length)];
+                addLogEntry(log.msg, log.type);
+            }, 5000);
+        }
+        
+        const modal = document.getElementById('adminModal');
+        const adminBtn = document.getElementById('adminBtn');
+        const closeBtn = document.getElementsByClassName('close')[0];
+        
+        adminBtn.onclick = function(e) {
+            e.preventDefault();
+            modal.style.display = 'block';
+        }
+        
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+            document.getElementById('errorMsg').style.display = 'none';
+        }
+        
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+                document.getElementById('errorMsg').style.display = 'none';
+            }
+        }
+        
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+                document.getElementById('loginForm').style.display = 'none';
+                document.getElementById('dashboard').style.display = 'block';
+                errorMsg.style.display = 'none';
+                displayVisitors();
+                updateStats();
+                startLiveLog();
+                addLogEntry('[INFO] Administrador autenticado - Acceso completo concedido', '');
+            } else {
+                errorMsg.style.display = 'block';
+                document.getElementById('password').value = '';
+                addLogEntry('[CRÍTICO] Intento de acceso fallido registrado', 'critical');
+            }
+        }
+        
+        function logout() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('dashboard').style.display = 'none';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            modal.style.display = 'none';
+        }
+        
+        document.getElementById('password').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                login();
+            }
+        });
+        
+        window.addEventListener('load', function() {
+            createBloodDrops();
+            registerVisit();
+            startHackerAppearances();
+            
+            // Reproducir audio automáticamente después de interacción del usuario
+            document.addEventListener('click', function() {
+                if (!audioPlaying) {
+                    const audio = document.getElementById('horrorAudio');
+                    audio.play().catch(e => console.log('Audio bloqueado por el navegador'));
+                    audioPlaying = true;
+                    document.getElementById('audioToggle').classList.add('playing');
+                    document.getElementById('audioToggle').textContent = '🔇 SILENCIO';
+                }
+            }, { once: true });
+            
+            setTimeout(() => {
+                const locations = ['TOR_NODE', 'ENCRYPTED', 'PROXY', 'VPN', 'DARK_WEB', 'UNKNOWN'];
+                for (let i = 0; i < 20; i++) {
+                    const fakeVisit = detectVisitorInfo();
+                    const threats = ['BAJO', 'MEDIO', 'ALTO', 'CRÍTICO'];
+                    visitors.push({
+                        ...fakeVisit,
+                        ip: generateFakeIP(),
+                        location: locations[Math.floor(Math.random() * locations.length)],
+                        threat: threats[Math.floor(Math.random() * threats.length)]
+                    });
+                }
+            }, 1000);
+        });
+        
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const letters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*(){}[]<>?/|\\';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = Array(Math.floor(columns)).fill(1);
+        
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = '#ff0000';
+            ctx.font = fontSize + 'px monospace';
+            
+            for (let i = 0; i < drops.length; i++) {
+                const text = letters[Math.floor(Math.random() * letters.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+        
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+        
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+        
+        setInterval(() => {
+            if (Math.random() > 0.98) {
+                document.body.style.animation = 'glitchText 0.1s';
+                setTimeout(() => {
+                    document.body.style.animation = 'flicker 0.15s infinite';
+                }, 100);
+            }
+        }, 2000);
+    </script>
+</body>
+</html>0 0 30px rgba(255, 0, 0, 0.5),
+                inset 0 0 50px rgba(139, 0, 0, 0.2);
+        }
+         
+        .about-section h2 {
+            font-size: 2.5em;
+            color: #ff0000;
+            margin-bottom: 30px;
+            text-align: center;
+            text-shadow: 0 0 20px #ff0000;
+            animation: glitchText 2s infinite;
+        }
+         
+        .about-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 40px;
+            align-items: center;
+        }
+         
+        .about-image {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #ff0000;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5em;
+            background: rgba(0, 0, 0, 0.8);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            animation: flicker 3s infinite;
+        }
+         
+        .about-text p {
+            color: #999;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
+        }
+         
+        .about-text .highlight {
+            color: #ff0000;
+            font-weight: bold;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .languages-section {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            margin: 80px auto;
+            padding: 50px;
+            background: rgba(0, 0, 0, 0.9);
+            border: 3px solid #ff0000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+        }
+         
+        .languages-section h2 {
+            font-size: 2.5em;
+            color: #ff0000;
+            margin-bottom: 40px;
+            text-align: center;
+            text-shadow: 0 0 20px #ff0000;
+        }
+         
+        .languages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+         
+        .lang-card {
+            background: rgba(139, 0, 0, 0.1);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: crosshair;
+        }
+         
+        .lang-card:hover {
+            transform: scale(1.1) rotate(2deg);
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.8);
+            background: rgba(255, 0, 0, 0.2);
+        }
+         
+        .lang-card .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 10px #ff0000);
+        }
+         
+        .lang-card h3 {
+            color: #ff0000;
+            font-size: 1.2em;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .features {
+            position: relative;
+            z-index: 10;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 80px 50px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+         
+        .feature-card {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #ff0000;
+            padding: 30px;
+            transition: all 0.3s;
+            position: relative;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
+        }
+         
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff0000, #8b0000, #ff0000);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+         
+        .feature-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(255, 0, 0, 0.6);
+            background: rgba(139, 0, 0, 0.2);
+        }
+         
+        .feature-card:hover::before {
+            opacity: 1;
+            animation: glitchText 0.5s infinite;
+        }
+         
+        .feature-card h3 {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            color: #ff0000;
+            text-shadow: 0 0 10px #ff0000;
+        }
+         
+        .feature-card p {
+            line-height: 1.6;
+            color: #999;
+        }
+         
+        .feature-card .icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            filter: drop-shadow(0 0 10px #ff0000);
+        }
+         
+        .terminal {
+            position: relative;
+            z-index: 10;
+            max-width: 800px;
+            margin: 50px auto;
+            background: #000;
+            border: 3px solid #ff0000;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            box-shadow:
