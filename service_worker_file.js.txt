@@ -1,0 +1,43 @@
+const CACHE_NAME = 'x-team-v1';
+const urlsToCache = [
+  '/X-team/',
+  '/X-team/index.html'
+];
+
+// Instalación del Service Worker
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+// Activación y limpieza de cachés antiguos
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
+  );
+});
+
+// Intercepción de peticiones
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        // Si está en caché, devuelve la versión cacheada
+        if (response) {
+          return response;
+        }
+        // Si no, hace la petición a la red
+        return fetch(event.request);
+      })
+  );
+});
