@@ -1,0 +1,25 @@
+{
+  "name": "X-team",
+  "short_name": "X-team",
+  "description": "X-team Application",
+  "start_url": "/X-team/",
+  "scope": "/X-team/",
+  "display": "standalone",
+  "background_color": "#dc2626",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/X-team/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/X-team/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
